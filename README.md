@@ -251,20 +251,6 @@ If this setup stays stable for 24–48 hours and still looks good over the follo
 
 ---
 
-## Why I wrote this README
-I wanted this README to do more than just list technical changes.
-I wanted it to explain the refresh like a real experience:
-- what the setup felt like before
-- what I chose to fix
-- why I fixed it that way
-- what is better now
-- and what still deserves attention later
-
-Because a good system refresh isn’t just about changing files.
-It’s about getting the setup back to a place where it makes sense again.
-
----
-
 ## Final thought
 INNERGCLAW SYSTEM REFRESH is really just me getting the system back under control.
 
