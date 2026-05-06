@@ -202,37 +202,6 @@ That’s the real test: not “did it look fixed for 10 minutes,” but “does 
 
 ---
 
-## What warnings still remain
-This refresh made the system cleaner, but not magically final forever.
-A few things still remain on the board.
-
-### Local Control UI insecure-auth compatibility flag
-There is still a local compatibility flag enabled for the Control UI.
-
-**My read on it right now**
-- acceptable in a loopback-only local setup
-- not ideal as the final hardened state
-- worth reviewing later, not worth rushing right now
-
-### Tool-profile startup warning
-There is still a low-priority warning for an unavailable tool entry.
-
-**My read on it right now**
-- mostly noise
-- not a stability problem
-- easy to defer
-
-### Older secondary install path still exists on disk
-There is still an older install path sitting on disk, even though it is no longer actively driving the broken service.
-
-**My read on it right now**
-- not urgent
-- worth cleaning up in a future deliberate version-hygiene pass
-
-So yes, there are still a few things left. But now they are the right kind of leftovers: known, contained, and non-blocking.
-
----
-
 ## What I intentionally did *not* change
 This part matters.
 
