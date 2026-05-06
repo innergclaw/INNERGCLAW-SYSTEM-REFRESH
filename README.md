@@ -220,6 +220,12 @@ Fix the instability first. Expand scope later if it’s actually needed.
 
 ---
 
+## Connect with me
+- Substack: https://substack.com/@innergintel
+- YouTube: https://www.youtube.com/@innergintel
+
+---
+
 ## Final thought
 INNERGCLAW SYSTEM REFRESH is really just me getting the system back under control.
 
