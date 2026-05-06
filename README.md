@@ -1,87 +1,129 @@
 # INNERGCLAW SYSTEM REFRESH
+## How I cleaned up my OpenClaw setup, what I fixed, and what I’m watching next
 
-## Why this refresh happened
-This refresh came out of a real OpenClaw cleanup experience.
+If you’ve ever had an AI setup that still *worked* but didn’t feel clean anymore, that’s what this was.
 
-The system was still usable, but it had started to feel noisy, split-brained, and harder to trust than it should have been. There were old service paths still hanging around, one optional service had fallen into a restart loop, logs were filling with repeat errors, and memory embeddings were retrying against a quota wall.
+My OpenClaw system had reached that point where nothing looked fully broken from the outside, but under the hood it was starting to get noisy, split, and harder to trust. I had an old optional service stuck in a loop, stale remote config still hanging around, logs getting flooded with repeat errors, and memory embeddings retrying into a quota wall.
 
-Nothing here is meant as drama. It is a practical record of what a refresh looks like when the goal is simple:
+So I did a full refresh.
+
+Not a reckless rebuild. Not random tinkering. A real cleanup pass with backups first, stability first, and clarity first.
+
+This repo is me documenting that refresh in plain language:
+- what I found
+- what I fixed
+- what changed
+- what I left alone on purpose
+- and what I’ll be watching over the next few weeks
+
+---
+
+## What I was trying to do
+My goal was simple:
 
 - make the system calmer
-- make the setup easier to understand
-- remove stale or risky paths
-- preserve rollback safety
-- keep working features intact
+- make the architecture easier to understand
+- remove stale or risky setup leftovers
+- stop unnecessary log noise
+- keep the working parts working
 
-This repo is written for users who want the short version of the experience, what was refreshed, what improved, and what should be watched next.
-
----
-
-## What was refreshed
-
-### 1) The broken optional node service was removed
-An old optional node service had drifted out of alignment and was stuck in a repeated restart/error loop.
-
-**What changed**
-- the broken service was backed up first
-- it was stopped and uninstalled
-- its restart loop was verified as gone
-
-**Why it matters**
-- less background noise
-- cleaner process state
-- fewer confusing errors during health checks
+I wasn’t trying to add features.
+I wasn’t trying to redesign everything.
+I was trying to get back to a setup that feels solid.
 
 ---
 
-### 2) A stale insecure remote route was removed
-The system still had an old plaintext remote websocket route in config. That route was not part of the desired steady-state setup anymore.
+## What I refreshed
+
+### 1) I removed the broken optional node service
+One of the biggest issues was an optional node service that had drifted out of alignment and fallen into a restart/error loop.
+
+That kind of issue is dangerous because even when it seems “separate,” it keeps poisoning the environment:
+- huge logs
+- repeated noise
+- confusing health signals
+- uncertainty about what is actually active
+
+**What I did**
+- backed up the service files first
+- backed up the logs first
+- stopped the broken service
+- uninstalled the node LaunchAgent
+- verified it was no longer loaded
 
 **What changed**
-- the stale remote gateway route was removed
-- the old node config tied to that route was disabled
-- the system was kept local-only on loopback
+- the restart loop stopped
+- the log spam stopped
+- the system instantly became easier to trust
 
-**Why it matters**
-- fewer moving parts
-- clearer architecture
-- safer default behavior
+That alone made a big difference.
 
 ---
 
-### 3) Backups and log preservation were done before repair
-This refresh was handled like production maintenance, not guesswork.
+### 2) I removed a stale insecure remote route
+There was also an old plaintext remote websocket route still sitting in config.
+
+Even if something like that isn’t actively being used the way it once was, I don’t like stale risky paths staying around. If the system has moved on from that design, the config should move on too.
+
+**What I did**
+- removed the stale remote gateway route from config
+- disabled the old node config tied to it
+- kept the gateway local-only on loopback
 
 **What changed**
-- configs were backed up
-- service files were backed up
-- logs were preserved and archived
-- fresh log files were recreated cleanly
+- the architecture got simpler
+- the setup became safer by default
+- there was less ambiguity about how traffic should flow
 
-**Why it matters**
-- rollback stays possible
-- historical errors are still available for review
-- new log activity is easier to read
+Now the system is much more straightforward: local gateway, local loopback, no broken remote leftovers pretending to still belong.
 
 ---
 
-### 4) Memory embedding noise was paused safely
-The gateway was repeatedly trying embedding requests and running into quota failures, which created avoidable retry noise.
+### 3) I handled the cleanup like production work
+One thing I wanted to do right was *not* treat this like random experimentation.
+
+Before changing anything important, I made backups.
+Not because I expected disaster, but because I respect rollback.
+
+**What I did**
+- backed up config
+- backed up service definitions
+- preserved and archived logs
+- recreated fresh logs cleanly after the noise stopped
 
 **What changed**
-- memory search was disabled only
-- the rest of the system was left alone
-- the gateway was reloaded cleanly afterward
+- I kept a safe rollback path
+- historical errors are still available for reference
+- new log activity is much easier to read
 
-**Why it matters**
-- retry bursts stopped
+That part matters more than people think. A “fix” without recovery is just a gamble.
+
+---
+
+### 4) I paused memory-search embedding noise without disturbing the rest
+Another issue was memory embedding retries hitting quota errors over and over again.
+
+The important part here was scope. I didn’t want to go in and start changing everything related to memory, chat, channels, or the wider system just to stop one noisy behavior.
+
+So I kept it surgical.
+
+**What I did**
+- backed up the main config again
+- disabled memory search only
+- left the rest of the system alone
+- reloaded the gateway cleanly
+
+**What changed**
+- the embedding retry bursts stopped
 - the gateway stayed healthy
-- channel/chat behavior remained available
+- the rest of the chat/channel setup kept working
+
+That’s the kind of fix I like: targeted, boring, effective.
 
 ---
 
 ## What the system looks like now
-The refreshed setup is intentionally simpler.
+After the refresh, the setup is intentionally simpler.
 
 ### Current architecture
 - local-only gateway
@@ -91,148 +133,180 @@ The refreshed setup is intentionally simpler.
 - channel connectivity preserved
 - memory-search embeddings disabled for now
 
-### What “healthy” means now
-A healthy system now looks like this:
-- the gateway is running locally and answering normally
-- the gateway stays on loopback instead of using a stale remote route
-- the optional node service does not reappear on its own
-- logs stay readable instead of filling with repeated retry storms
+That’s a much better baseline than “half-local, half-legacy, half-why-is-this-still-here.”
+
+---
+
+## What “healthy” means to me now
+At this point, a healthy system looks like this:
+- the gateway runs locally and responds normally
+- the gateway stays on loopback
+- the removed node service does not come back on its own
+- the logs stay readable instead of turning into retry storms
 - channels continue working normally
+- no old insecure route quietly creeps back into the picture
+
+In other words: less drama, more signal.
 
 ---
 
 ## What improved after the refresh
-The biggest difference is not flashy. It is operational clarity.
+The biggest win wasn’t some flashy new capability.
+It was clarity.
 
 ### Before
 - mixed service history
 - stale remote config
-- optional node-service failure loop
-- heavy log noise
-- memory embedding retry bursts
+- broken optional service loop
+- noisy logs
+- memory embedding quota spam
 
 ### After
-- simpler local-only layout
+- simpler local-only architecture
 - broken optional service removed
 - stale insecure route removed
-- logs archived and reset cleanly
-- memory quota noise stopped
-- healthier base for future maintenance
+- log history preserved and current logs cleaned up
+- memory retry noise stopped
+- healthier foundation for future maintenance
+
+That’s what I wanted.
+A setup that feels deliberate again.
 
 ---
 
-## What users should watch over the next few weeks
-This is the practical watchlist after a cleanup like this.
+## What I’m watching over the next few weeks
+A cleanup isn’t just about the moment you finish it. It’s also about what happens after.
 
 ### First 24–48 hours
-Watch for:
+I’ll be watching for:
 - any gateway restart instability
-- channel disconnects
-- return of repeated memory quota bursts
-- signs that the removed node service has reappeared
+- any channel disconnects
+- return of memory quota retry bursts
+- any sign that the removed node service reappears
 
 ### First 1–2 weeks
-Watch for:
+I’ll be watching for:
 - unusual log growth
-- repeated warnings that look new, not known
-- channel behavior becoming inconsistent
-- dashboard or local UI behavior becoming flaky
+- warnings that are actually new, not just known leftovers
+- inconsistent channel behavior
+- flaky dashboard or local UI behavior
 
 ### Weeks 2–4
-Watch for:
-- whether local-only architecture still fits the real workflow
-- whether memory search should stay off or be reintroduced later with a better provider/setup
+I’ll be watching for:
+- whether local-only architecture is enough long-term
+- whether memory search should stay off or come back later with a better provider/setup
 - whether remaining low-priority warnings can be cleaned up safely
 - whether the older inactive install path can be retired cleanly
 
+That’s the real test: not “did it look fixed for 10 minutes,” but “does it stay calm.”
+
 ---
 
-## Remaining warnings
-The system is cleaner, not “finished forever.” A few items remain.
+## What warnings still remain
+This refresh made the system cleaner, but not magically final forever.
+A few things still remain on the board.
 
 ### Local Control UI insecure-auth compatibility flag
 There is still a local compatibility flag enabled for the Control UI.
 
-**Current read**
+**My read on it right now**
 - acceptable in a loopback-only local setup
-- not ideal as a final hardened state
-- should be reviewed later, not rushed now
+- not ideal as the final hardened state
+- worth reviewing later, not worth rushing right now
 
 ### Tool-profile startup warning
-A low-priority warning still appears for an unavailable tool entry.
+There is still a low-priority warning for an unavailable tool entry.
 
-**Current read**
+**My read on it right now**
 - mostly noise
-- not a stability issue
-- safe to defer
+- not a stability problem
+- easy to defer
 
 ### Older secondary install path still exists on disk
-An older install remains present but is no longer actively running the broken service.
+There is still an older install path sitting on disk, even though it is no longer actively driving the broken service.
 
-**Current read**
+**My read on it right now**
 - not urgent
-- worth cleaning up only in a deliberate future pass
+- worth cleaning up in a future deliberate version-hygiene pass
+
+So yes, there are still a few things left. But now they are the right kind of leftovers: known, contained, and non-blocking.
 
 ---
 
-## What was intentionally not changed
-To keep risk low, this refresh did **not** try to redesign everything.
+## What I intentionally did *not* change
+This part matters.
 
-The following areas were intentionally left alone:
+When I do a refresh like this, I don’t want “cleanup” to become an excuse for touching everything.
+That’s how you turn one repair into three new problems.
+
+So I intentionally left these areas alone:
 - channel configuration
 - TTS configuration
 - approval policy
 - project application code
 - broader tool-policy design
 
-That restraint is part of the refresh strategy. Fix the instability first. Expand scope later only if needed.
+That was on purpose.
+Fix the instability first. Expand scope later if it’s actually needed.
 
 ---
 
-## Rollback mindset
-The refresh was performed with backups first so rollback stays possible.
+## My rollback mindset
+I wanted every meaningful change to be reversible.
 
-If a future review decides a change should be reversed, the path is straightforward because the key config and service state were preserved before edits.
+That’s why backups came first.
+If I ever want to restore an earlier version of the config or revisit a decision, I have a path back.
+
+That doesn’t mean I expect to roll back.
+It means I respect operating like it’s real.
 
 ---
 
-## Recommended next maintenance after a stable observation window
-If the refreshed system stays stable for 24–48 hours and continues behaving well over the following weeks, the next smart maintenance steps are:
+## What I’d do next after a stable observation window
+If this setup stays stable for 24–48 hours and still looks good over the following weeks, the next smart maintenance steps would be:
 
 1. **Security hardening pass**
    - review whether the local Control UI compatibility flag can be turned off safely
 
 2. **Version hygiene pass**
    - unify remaining runtime references around one current OpenClaw version
-   - carefully retire the inactive older install path
+   - retire the inactive older install path carefully
 
 3. **Memory strategy pass**
    - decide whether memory search should stay disabled
-   - or return later with a provider/setup that will not create quota retry noise
+   - or bring it back later with a provider/setup that won’t create quota retry noise
 
 4. **Log hygiene pass**
-   - confirm logs remain calm and readable
-   - archive historical noise as needed
+   - keep logs calm, readable, and useful
+   - archive old noise when it no longer needs to sit in the main path
 
 ---
 
-## README purpose
-This README is meant to help users understand the refresh in plain language:
-- what was wrong
-- what was refreshed
+## Why I wrote this README
+I wanted this README to do more than just list technical changes.
+I wanted it to explain the refresh like a real experience:
+- what the setup felt like before
+- what I chose to fix
+- why I fixed it that way
 - what is better now
-- what still needs watching
-- what should wait for a later maintenance pass
+- and what still deserves attention later
+
+Because a good system refresh isn’t just about changing files.
+It’s about getting the setup back to a place where it makes sense again.
 
 ---
 
-## Summary
-INNERGCLAW SYSTEM REFRESH is the story of a cleanup done the right way:
+## Final thought
+INNERGCLAW SYSTEM REFRESH is really just me getting the system back under control.
+
+Not by overcomplicating it.
+Not by pretending everything had to be rebuilt.
+Just by doing the right maintenance in the right order:
 - back up first
 - remove drift
-- simplify architecture
+- simplify what’s active
 - stop noisy failure loops
-- keep working features intact
-- leave a cleaner base than the one you started with
+- keep the good parts intact
+- leave a cleaner foundation than I started with
 
-That is the refresh.
+That’s the refresh.
