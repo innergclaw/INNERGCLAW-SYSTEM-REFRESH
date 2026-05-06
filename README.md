@@ -220,37 +220,6 @@ Fix the instability first. Expand scope later if it’s actually needed.
 
 ---
 
-## My rollback mindset
-I wanted every meaningful change to be reversible.
-
-That’s why backups came first.
-If I ever want to restore an earlier version of the config or revisit a decision, I have a path back.
-
-That doesn’t mean I expect to roll back.
-It means I respect operating like it’s real.
-
----
-
-## What I’d do next after a stable observation window
-If this setup stays stable for 24–48 hours and still looks good over the following weeks, the next smart maintenance steps would be:
-
-1. **Security hardening pass**
-   - review whether the local Control UI compatibility flag can be turned off safely
-
-2. **Version hygiene pass**
-   - unify remaining runtime references around one current OpenClaw version
-   - retire the inactive older install path carefully
-
-3. **Memory strategy pass**
-   - decide whether memory search should stay disabled
-   - or bring it back later with a provider/setup that won’t create quota retry noise
-
-4. **Log hygiene pass**
-   - keep logs calm, readable, and useful
-   - archive old noise when it no longer needs to sit in the main path
-
----
-
 ## Final thought
 INNERGCLAW SYSTEM REFRESH is really just me getting the system back under control.
 
